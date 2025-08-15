@@ -25,13 +25,14 @@ RUN apt-get update -y && \
     apt-get clean -y && \
     rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip and install Whisper and dependencies
+
+# Upgrade pip and install Whisper, transformers, and dependencies
 RUN pip install --upgrade pip && \
     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 && \
-    pip install openai-whisper
+    pip install openai-whisper transformers requests
 
-# Pre-download Whisper large model
-RUN python3 -c "import whisper; whisper.load_model('large')"
+# Pre-download Whisper large model (optional, for openai-whisper)
+RUN python3 -c "import whisper; whisper.load_model('large')" || true
 
 # (Optional) Install runpod SDK if using serverless handler
 RUN pip install runpod

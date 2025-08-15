@@ -1,13 +1,14 @@
+
 import runpod
-import whisper
 import tempfile
 import requests
 import os
+from transformers import pipeline
 
 def handler(event):
     input_data = event.get('input', {})
     audio_url = input_data.get('audio')
-    model_name = input_data.get('model', 'base')
+    model_name = input_data.get('model', 'Sandiago21/whisper-large-v2-greek')
     language = input_data.get('language', None)
 
     if not audio_url:
@@ -23,23 +24,23 @@ def handler(event):
     except Exception as e:
         return {"error": f"Failed to download audio: {str(e)}"}
 
-    # Load Whisper model
+    # Load Huggingface Whisper pipeline
     try:
-        model = whisper.load_model(model_name)
+        asr = pipeline("automatic-speech-recognition", model=model_name, device=0)
     except Exception as e:
         os.unlink(temp_audio_path)
         return {"error": f"Failed to load model '{model_name}': {str(e)}"}
 
     # Transcribe
     try:
-        result = model.transcribe(temp_audio_path, language=language)
+        result = asr(temp_audio_path)
     except Exception as e:
         os.unlink(temp_audio_path)
         return {"error": f"Transcription failed: {str(e)}"}
     finally:
         os.unlink(temp_audio_path)
 
-    return {"text": result.get('text', ''), "language": result.get('language', language)}
+    return {"text": result.get('text', ''), "language": language}
 
 if __name__ == "__main__":
     runpod.serverless.start({"handler": handler})
