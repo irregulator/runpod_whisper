@@ -34,7 +34,7 @@ def handler(event):
 
     # Transcribe
     try:
-        result = asr(temp_audio_path)
+        result = asr(temp_audio_path, return_timestamps=True)
     except Exception as e:
         if os.path.exists(temp_audio_path):
             os.unlink(temp_audio_path)
