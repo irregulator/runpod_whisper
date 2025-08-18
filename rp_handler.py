@@ -28,17 +28,20 @@ def handler(event):
     try:
         asr = pipeline("automatic-speech-recognition", model=model_name, device=0)
     except Exception as e:
-        os.unlink(temp_audio_path)
+        if os.path.exists(temp_audio_path):
+            os.unlink(temp_audio_path)
         return {"error": f"Failed to load model '{model_name}': {str(e)}"}
 
     # Transcribe
     try:
         result = asr(temp_audio_path)
     except Exception as e:
-        os.unlink(temp_audio_path)
+        if os.path.exists(temp_audio_path):
+            os.unlink(temp_audio_path)
         return {"error": f"Transcription failed: {str(e)}"}
     finally:
-        os.unlink(temp_audio_path)
+        if os.path.exists(temp_audio_path):
+            os.unlink(temp_audio_path)
 
     return {"text": result.get('text', ''), "language": language}
 
