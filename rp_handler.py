@@ -10,6 +10,7 @@ def handler(event):
     audio_url = input_data.get('audio')
     model_name = input_data.get('model', 'Sandiago21/whisper-large-v2-greek')
     language = input_data.get('language', None)
+    params = input_data.get('params', {})
 
     if not audio_url:
         return {"error": "Missing 'audio' parameter."}
@@ -34,7 +35,10 @@ def handler(event):
 
     # Transcribe
     try:
-        result = asr(temp_audio_path, return_timestamps=True)
+        # Merge default params with user params
+        pipeline_args = {"language": language}
+        pipeline_args.update(params)
+        result = asr(temp_audio_path, **pipeline_args)
     except Exception as e:
         if os.path.exists(temp_audio_path):
             os.unlink(temp_audio_path)
