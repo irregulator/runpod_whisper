@@ -35,10 +35,8 @@ def handler(event):
 
     # Transcribe
     try:
-        # Merge default params with user params
-        pipeline_args = {"language": language}
-        pipeline_args.update(params)
-        result = asr(temp_audio_path, **pipeline_args)
+        # Only use user-provided params for pipeline call
+        result = asr(temp_audio_path, **params)
     except Exception as e:
         if os.path.exists(temp_audio_path):
             os.unlink(temp_audio_path)
